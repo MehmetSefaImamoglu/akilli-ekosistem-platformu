@@ -1,0 +1,24 @@
+# ============================================================
+# EcoSync AI — .gitignore
+# ============================================================
+
+# Ortam değişkenleri — asla commit'leme!
+.env
+.env.local
+.env.*.local
+
+# ──── Flutter ────────────────────────────────────────────────
+mobil_uygulama/.dart_tool/
+mobil_uygulama/build/
+mobil_uygulama/.flutter-plugins
+mobil_uygulama/.flutter-plugins-dependencies
+
+# ──── Next.js ────────────────────────────────────────────────
+web_paneli/.next/
+web_paneli/node_modules/
+web_paneli/out/
+
+# ──── Genel ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log

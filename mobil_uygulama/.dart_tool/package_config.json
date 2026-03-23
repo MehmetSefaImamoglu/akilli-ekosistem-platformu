@@ -344,6 +344,12 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "google_fonts",
+      "rootUri": "file:///C:/Users/VICTUS/AppData/Local/Pub/Cache/hosted/pub.dev/google_fonts-8.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.9"
+    },
+    {
       "name": "google_generative_ai",
       "rootUri": "file:///C:/Users/VICTUS/AppData/Local/Pub/Cache/hosted/pub.dev/google_generative_ai-0.4.7",
       "packageUri": "lib/",
