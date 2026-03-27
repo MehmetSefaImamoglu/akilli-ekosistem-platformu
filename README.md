@@ -27,7 +27,8 @@ akilli-ekosistem-platformu/
 │   │   ├── models/              # Domain modeller (User, Consumption, Anomaly)
 │   │   └── features/            # Feature-first modüler yapı
 │   │       ├── auth/            # Giriş / Kayıt (data + domain + presentation)
-│   │       ├── dashboard/       # Ana panel
+│   │       ├── dashboard/       # Ana panel (fl_chart BarChart entegre ✅)
+│   │       ├── consumption/     # Tüketim CRUD — form, repository, Riverpod ✅
 │   │       └── anomaly/         # Anomali listesi ve detayı
 │   ├── pubspec.yaml             # Flutter bağımlılıkları
 │   └── .env.example             # Ortam değişkeni şablonu
@@ -47,6 +48,15 @@ akilli-ekosistem-platformu/
 
 ![Gantt Diyagramı](dokumanlar/gantt_diyagrami.png)
 
+### ✅ Tamamlanan Haftalar
+
+| Hafta | Konu | Durum |
+|-------|------|-------|
+| Hafta 1–2 | Proje kurulumu, Next.js + Flutter iskelet, Supabase şeması, dokümantasyon | ✅ Tamamlandı |
+| Hafta 3 | Auth entegrasyonu (Supabase JWT), GoRouter, login/register akışı | ✅ Tamamlandı |
+| Hafta 4 | Tüketim verisi CRUD (Flutter Riverpod + Supabase), `fl_chart` BarChart (mobil), Recharts AreaChart (web), Server-side dashboard veri çekme | ✅ Tamamlandı |
+| Hafta 5–13 | Anomali tespiti, Gemini AI entegrasyonu, bildirimler, deployment | 🔲 Planlandı |
+
 ---
 
 ## ⚙️ Teknoloji Yığını
@@ -59,7 +69,7 @@ akilli-ekosistem-platformu/
 | Navigasyon | GoRouter | Bildirimsel routing, deep link |
 | Backend/Auth | Supabase (PostgreSQL + JWT) | BaaS — Auth, Realtime, Storage |
 | Yapay Zeka | Google Gemini API (gemini-1.5-flash) | Anomali açıklama, öneri üretme |
-| Grafik | fl_chart (mobil) / Recharts (web) | Tüketim trend grafikleri |
+| Grafik | fl_chart (mobil) / Recharts (web) | Tüketim trend grafikleri ✅ Hafta 4'te entegre edildi |
 | Dağıtım | Vercel (web) / Firebase (mobil test) | CI/CD entegrasyon |
 
 ---
