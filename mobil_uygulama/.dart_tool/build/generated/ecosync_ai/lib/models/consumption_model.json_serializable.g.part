@@ -8,9 +8,9 @@ _$ConsumptionModelImpl _$$ConsumptionModelImplFromJson(
       id: json['id'] as String,
       userId: json['user_id'] as String,
       type: $enumDecode(_$ConsumptionTypeEnumMap, json['type']),
-      value: (json['value'] as num).toDouble(),
+      value: _parseDouble(json['value']),
       unit: json['unit'] as String,
-      recordedAt: DateTime.parse(json['recorded_at'] as String),
+      recordedAt: _parseDateTime(json['recorded_at']),
       notes: json['notes'] as String?,
     );
 

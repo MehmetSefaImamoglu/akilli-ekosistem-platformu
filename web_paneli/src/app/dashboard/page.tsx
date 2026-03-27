@@ -1,6 +1,17 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/auth/actions'
+import {
+  fetchConsumptionTotals,
+  fetchDailyConsumptions,
+} from '@/lib/supabase/consumption_queries'
+import ConsumptionAreaChart from '@/components/ConsumptionAreaChart'
+
+// ─── Yardımcı: sayıyı güzel formatla ─────────────────────────────────────────
+function fmt(v: number): string {
+  if (v === 0) return '—'
+  return v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -9,13 +20,48 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Middleware bunu yakalamalıydı ama güvenlik için çift kontrol
   if (!user) {
     redirect('/login')
   }
 
   const displayName =
-    (user.user_metadata?.full_name as string) ?? user.email ?? 'Yönetici'
+    (user.user_metadata?.full_name as string) ?? user.email ?? 'Yonetici'
+
+  // ── Server-side veri çekme ─────────────────────────────────────────────────
+  const [totals, dailyData] = await Promise.all([
+    fetchConsumptionTotals(supabase, user.id, 30),
+    fetchDailyConsumptions(supabase, user.id, 7),
+  ])
+
+  const summaryCards = [
+    {
+      label: 'Elektrik',
+      value: fmt(totals.electricity),
+      unit: 'kWh (son 30 gun)',
+      icon: '⚡',
+      accent: 'text-amber-400',
+      border: 'border-amber-500/20',
+      bg: 'bg-amber-500/5',
+    },
+    {
+      label: 'Su',
+      value: fmt(totals.water),
+      unit: 'L (son 30 gun)',
+      icon: '💧',
+      accent: 'text-blue-400',
+      border: 'border-blue-500/20',
+      bg: 'bg-blue-500/5',
+    },
+    {
+      label: 'Gaz',
+      value: fmt(totals.gas),
+      unit: 'm3 (son 30 gun)',
+      icon: '🔥',
+      accent: 'text-orange-400',
+      border: 'border-orange-500/20',
+      bg: 'bg-orange-500/5',
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -70,74 +116,67 @@ export default async function DashboardPage() {
                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                   />
                 </svg>
-                Çıkış
+                Cikis
               </button>
             </form>
           </div>
         </div>
       </header>
 
-      {/* Ana İçerik */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Karşılama */}
-        <div className="mb-8">
+      {/* Ana Icerik */}
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Karsilama */}
+        <div>
           <h1 className="text-2xl font-bold text-white">
             Merhaba, {displayName} 👋
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            EcoSync AI Yönetim Paneline hoş geldiniz.
+            EcoSync AI Yonetim Paneline hos geldiniz.
           </p>
         </div>
 
-        {/* Özet Kartlar */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          {[
-            {
-              label: 'Elektrik',
-              value: '—',
-              unit: 'kWh',
-              icon: '⚡',
-              color: 'amber',
-            },
-            {
-              label: 'Su',
-              value: '—',
-              unit: 'L',
-              icon: '💧',
-              color: 'blue',
-            },
-            {
-              label: 'Gaz',
-              value: '—',
-              unit: 'm³',
-              icon: '🔥',
-              color: 'orange',
-            },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/[0.07] transition-colors"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-slate-400 text-sm font-medium">
-                  {item.label}
-                </span>
-                <span className="text-xl">{item.icon}</span>
+        {/* Ozet Kartlar — gercek veriler */}
+        <section>
+          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
+            Son 30 Gun — Tuketim Ozeti
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {summaryCards.map((card) => (
+              <div
+                key={card.label}
+                className={`${card.bg} border ${card.border} rounded-2xl p-5 hover:bg-white/[0.07] transition-colors`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-slate-400 text-sm font-medium">
+                    {card.label}
+                  </span>
+                  <span className="text-xl">{card.icon}</span>
+                </div>
+                <p className={`text-3xl font-bold ${card.accent}`}>
+                  {card.value}
+                </p>
+                <p className="text-slate-500 text-xs mt-1">{card.unit}</p>
               </div>
-              <p className="text-2xl font-bold text-white">{item.value}</p>
-              <p className="text-slate-500 text-xs mt-1">{item.unit}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
 
-        {/* Hafta 4 Notu */}
-        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-6 text-center">
-          <p className="text-emerald-400 font-medium">
-            📊 Tüketim grafikleri ve anomali listesi Hafta 4&apos;te eklenecek
-          </p>
-          <p className="text-slate-500 text-sm mt-1">
-            Auth entegrasyonu ✅ — Supabase bağlantısı aktif
-          </p>
+        {/* Recharts Alan Grafigi */}
+        <section>
+          <ConsumptionAreaChart data={dailyData} />
+        </section>
+
+        {/* Alt bilgi */}
+        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 flex items-center gap-3">
+          <span className="text-emerald-400 text-lg">✅</span>
+          <div>
+            <p className="text-emerald-400 text-sm font-medium">
+              Canli Supabase verisi aktif
+            </p>
+            <p className="text-slate-500 text-xs">
+              Mobil uygulamadan eklenen kayitlar bu panele otomatik yansir.
+            </p>
+          </div>
         </div>
       </main>
     </div>

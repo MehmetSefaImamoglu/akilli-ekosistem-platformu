@@ -8,6 +8,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/anomaly/presentation/pages/anomaly_list_page.dart';
+import '../../features/consumption/presentation/pages/add_consumption_page.dart';
 
 // ──────────────────────────────────────────────────────────────
 // GoRouter redirect mantığı:
@@ -60,6 +61,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/anomalies',
         name: 'anomalies',
         builder: (context, state) => const AnomalyListPage(),
+      ),
+      GoRoute(
+        path: '/add-consumption',
+        name: 'addConsumption',
+        builder: (context, state) => const AddConsumptionPage(),
       ),
     ],
   );

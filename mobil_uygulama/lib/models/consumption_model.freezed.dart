@@ -20,24 +20,27 @@ ConsumptionModel _$ConsumptionModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ConsumptionModel {
-  /// Kayıt UUID'si
+  /// Kayit UUID'si
   String get id => throw _privateConstructorUsedError;
 
-  /// Kullanıcı UUID'si (FK → users.id)
+  /// Kullanici UUID'si (FK → users.id)
   @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
 
-  /// Tüketim türü: electricity | water | gas
+  /// Tuketim turu: electricity | water | gas
   ConsumptionType get type => throw _privateConstructorUsedError;
 
-  /// Ölçüm değeri (kWh / litre / m³)
+  /// Olcum degeri (kWh / litre / m3)
+  /// @JsonKey(fromJson) ile int/double/String'i guvenle double'a cevirir.
+  @JsonKey(fromJson: _parseDouble)
   double get value => throw _privateConstructorUsedError;
 
-  /// Birim etiketi: 'kWh', 'litre', 'm³'
+  /// Birim etiketi: 'kWh', 'L', 'm3'
   String get unit => throw _privateConstructorUsedError;
 
-  /// Ölçüm zaman damgası
-  @JsonKey(name: 'recorded_at')
+  /// Olcum zaman damgasi
+  /// @JsonKey(fromJson) ile String veya DateTime'i guvenle parse eder.
+  @JsonKey(name: 'recorded_at', fromJson: _parseDateTime)
   DateTime get recordedAt => throw _privateConstructorUsedError;
 
   /// Opsiyonel notlar
@@ -63,9 +66,10 @@ abstract class $ConsumptionModelCopyWith<$Res> {
       {String id,
       @JsonKey(name: 'user_id') String userId,
       ConsumptionType type,
-      double value,
+      @JsonKey(fromJson: _parseDouble) double value,
       String unit,
-      @JsonKey(name: 'recorded_at') DateTime recordedAt,
+      @JsonKey(name: 'recorded_at', fromJson: _parseDateTime)
+      DateTime recordedAt,
       String? notes});
 }
 
@@ -137,9 +141,10 @@ abstract class _$$ConsumptionModelImplCopyWith<$Res>
       {String id,
       @JsonKey(name: 'user_id') String userId,
       ConsumptionType type,
-      double value,
+      @JsonKey(fromJson: _parseDouble) double value,
       String unit,
-      @JsonKey(name: 'recorded_at') DateTime recordedAt,
+      @JsonKey(name: 'recorded_at', fromJson: _parseDateTime)
+      DateTime recordedAt,
       String? notes});
 }
 
@@ -204,38 +209,42 @@ class _$ConsumptionModelImpl implements _ConsumptionModel {
       {required this.id,
       @JsonKey(name: 'user_id') required this.userId,
       required this.type,
-      required this.value,
+      @JsonKey(fromJson: _parseDouble) required this.value,
       required this.unit,
-      @JsonKey(name: 'recorded_at') required this.recordedAt,
+      @JsonKey(name: 'recorded_at', fromJson: _parseDateTime)
+      required this.recordedAt,
       this.notes});
 
   factory _$ConsumptionModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ConsumptionModelImplFromJson(json);
 
-  /// Kayıt UUID'si
+  /// Kayit UUID'si
   @override
   final String id;
 
-  /// Kullanıcı UUID'si (FK → users.id)
+  /// Kullanici UUID'si (FK → users.id)
   @override
   @JsonKey(name: 'user_id')
   final String userId;
 
-  /// Tüketim türü: electricity | water | gas
+  /// Tuketim turu: electricity | water | gas
   @override
   final ConsumptionType type;
 
-  /// Ölçüm değeri (kWh / litre / m³)
+  /// Olcum degeri (kWh / litre / m3)
+  /// @JsonKey(fromJson) ile int/double/String'i guvenle double'a cevirir.
   @override
+  @JsonKey(fromJson: _parseDouble)
   final double value;
 
-  /// Birim etiketi: 'kWh', 'litre', 'm³'
+  /// Birim etiketi: 'kWh', 'L', 'm3'
   @override
   final String unit;
 
-  /// Ölçüm zaman damgası
+  /// Olcum zaman damgasi
+  /// @JsonKey(fromJson) ile String veya DateTime'i guvenle parse eder.
   @override
-  @JsonKey(name: 'recorded_at')
+  @JsonKey(name: 'recorded_at', fromJson: _parseDateTime)
   final DateTime recordedAt;
 
   /// Opsiyonel notlar
@@ -289,38 +298,42 @@ abstract class _ConsumptionModel implements ConsumptionModel {
       {required final String id,
       @JsonKey(name: 'user_id') required final String userId,
       required final ConsumptionType type,
-      required final double value,
+      @JsonKey(fromJson: _parseDouble) required final double value,
       required final String unit,
-      @JsonKey(name: 'recorded_at') required final DateTime recordedAt,
+      @JsonKey(name: 'recorded_at', fromJson: _parseDateTime)
+      required final DateTime recordedAt,
       final String? notes}) = _$ConsumptionModelImpl;
 
   factory _ConsumptionModel.fromJson(Map<String, dynamic> json) =
       _$ConsumptionModelImpl.fromJson;
 
-  /// Kayıt UUID'si
+  /// Kayit UUID'si
   @override
   String get id;
 
-  /// Kullanıcı UUID'si (FK → users.id)
+  /// Kullanici UUID'si (FK → users.id)
   @override
   @JsonKey(name: 'user_id')
   String get userId;
 
-  /// Tüketim türü: electricity | water | gas
+  /// Tuketim turu: electricity | water | gas
   @override
   ConsumptionType get type;
 
-  /// Ölçüm değeri (kWh / litre / m³)
+  /// Olcum degeri (kWh / litre / m3)
+  /// @JsonKey(fromJson) ile int/double/String'i guvenle double'a cevirir.
   @override
+  @JsonKey(fromJson: _parseDouble)
   double get value;
 
-  /// Birim etiketi: 'kWh', 'litre', 'm³'
+  /// Birim etiketi: 'kWh', 'L', 'm3'
   @override
   String get unit;
 
-  /// Ölçüm zaman damgası
+  /// Olcum zaman damgasi
+  /// @JsonKey(fromJson) ile String veya DateTime'i guvenle parse eder.
   @override
-  @JsonKey(name: 'recorded_at')
+  @JsonKey(name: 'recorded_at', fromJson: _parseDateTime)
   DateTime get recordedAt;
 
   /// Opsiyonel notlar
