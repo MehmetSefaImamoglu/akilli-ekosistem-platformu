@@ -4,14 +4,18 @@
 //   - consumptionTotalsProvider ile ozet kartlar
 //   - ConsumptionBarChart ile fl_chart entegrasyonu
 //   - FAB -> /add-consumption sayfasi
+// Hafta 5: Anomali tespiti
+//   - anomalyListProvider ile Son Anomaliler bölümü
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../anomaly/providers/anomaly_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../consumption/presentation/widgets/consumption_bar_chart.dart';
 import '../../../consumption/providers/consumption_provider.dart';
+import '../../../../models/anomaly_model.dart';
 import '../../../../models/consumption_model.dart';
 
 class DashboardPage extends ConsumerWidget {
@@ -26,6 +30,8 @@ class DashboardPage extends ConsumerWidget {
 
     // 30 gunluk toplam tuketimler (elektrik, su, gaz)
     final totalsAsync = ref.watch(consumptionTotalsProvider);
+    // Son 5 anomali
+    final anomalyAsync = ref.watch(anomalyListProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -75,6 +81,7 @@ class DashboardPage extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(consumptionListProvider);
           ref.invalidate(consumptionTotalsProvider);
+          ref.invalidate(anomalyListProvider);
         },
         child: CustomScrollView(
           slivers: [
@@ -190,10 +197,65 @@ class DashboardPage extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Center(
-                        child: Text('Henuz anomali tespit edilmedi')),
+                  const SizedBox(height: 8),
+                  anomalyAsync.when(
+                    loading: () => Column(
+                      children: List.generate(
+                        2,
+                        (_) => const Padding(
+                          padding: EdgeInsets.only(bottom: 8),
+                          child: _AnomalyCardSkeleton(),
+                        ),
+                      ),
+                    ),
+                    error: (e, __) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline,
+                              color: theme.colorScheme.error, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Anomaliler yuklenemedi: $e',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.error),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    data: (anomalies) => anomalies.isEmpty
+                        ? Padding(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle_outline,
+                                    color:
+                                        theme.colorScheme.onSurfaceVariant,
+                                    size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Henuz anomali tespit edilmedi',
+                                  style: theme.textTheme.bodyMedium
+                                      ?.copyWith(
+                                          color: theme
+                                              .colorScheme.onSurfaceVariant),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Column(
+                            children: anomalies
+                                .map((a) => Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 8),
+                                      child: _AnomalyCard(anomaly: a),
+                                    ))
+                                .toList(),
+                          ),
                   ),
                 ]),
               ),
@@ -293,6 +355,197 @@ class _SkeletonCard extends StatelessWidget {
                 decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(4))),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// Anomali Uyarı Kartı
+// severity: high → kırmızı, medium → turuncu, low → sarı
+// ──────────────────────────────────────────────────────────────
+class _AnomalyCard extends StatelessWidget {
+  final AnomalyModel anomaly;
+  const _AnomalyCard({required this.anomaly});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // Şiddete göre renk paleti
+    final (cardColor, iconColor, borderColor) = switch (anomaly.severity) {
+      AnomalySeverity.critical => (
+          const Color(0xFFFFEBEE),
+          const Color(0xFFC62828),
+          const Color(0xFFEF9A9A),
+        ),
+      AnomalySeverity.high => (
+          const Color(0xFFFFF3E0),
+          const Color(0xFFE65100),
+          const Color(0xFFFFCC80),
+        ),
+      AnomalySeverity.medium => (
+          const Color(0xFFFFFDE7),
+          const Color(0xFFF9A825),
+          const Color(0xFFFFF176),
+        ),
+      AnomalySeverity.low => (
+          const Color(0xFFF1F8E9),
+          const Color(0xFF558B2F),
+          const Color(0xFFAED581),
+        ),
+    };
+
+    // Tarih formatlama (GG.AA SS:DD)
+    final dt = anomaly.detectedAt.toLocal();
+    final dateStr =
+        '${dt.day.toString().padLeft(2, '0')}.'
+        '${dt.month.toString().padLeft(2, '0')} '
+        '${dt.hour.toString().padLeft(2, '0')}:'
+        '${dt.minute.toString().padLeft(2, '0')}';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor, width: 1.2),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // İkon
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.warning_amber_rounded,
+                  color: iconColor, size: 22),
+            ),
+            const SizedBox(width: 12),
+            // Açıklama + tarih
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    anomaly.description,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: iconColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time_rounded,
+                          size: 13,
+                          color: iconColor.withValues(alpha: 0.7)),
+                      const SizedBox(width: 4),
+                      Text(
+                        dateStr,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: iconColor.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      _SeverityBadge(severity: anomaly.severity),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Şiddet rozeti
+class _SeverityBadge extends StatelessWidget {
+  final AnomalySeverity severity;
+  const _SeverityBadge({required this.severity});
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, color) = switch (severity) {
+      AnomalySeverity.critical => ('KRİTİK', const Color(0xFFC62828)),
+      AnomalySeverity.high     => ('YÜKSEK', const Color(0xFFE65100)),
+      AnomalySeverity.medium   => ('ORTA',   const Color(0xFFF9A825)),
+      AnomalySeverity.low      => ('DÜŞÜK',  const Color(0xFF558B2F)),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: color,
+          letterSpacing: 0.4,
+        ),
+      ),
+    );
+  }
+}
+
+// Anomali yükleniyor iskeleti
+class _AnomalyCardSkeleton extends StatelessWidget {
+  const _AnomalyCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme.surfaceContainerHighest;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: c.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: c),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38, height: 38,
+            decoration: BoxDecoration(
+              color: c,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 12, width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: c,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 10, width: 120,
+                  decoration: BoxDecoration(
+                    color: c,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

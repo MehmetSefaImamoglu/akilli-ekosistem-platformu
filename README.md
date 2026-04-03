@@ -5,6 +5,8 @@
 
 Enerji (elektrik, gaz) ve su tüketimini gerçek zamanlı izleyen, Google Gemini API destekli anomali tespiti yapan ve kullanıcılara kişiselleştirilmiş sürdürülebilirlik tavsiyeleri sunan çok platformlu akıllı ekosistem platformu.
 
+> 🚨 **Yeni — Hafta 5:** Kural tabanlı anomali tespit algoritması devreye alındı! Elektrik > 200 kWh, Su > 100 L veya Gaz > 50 m³ eşik değerlerini aşan her tüketim kaydı otomatik olarak `anomalies` tablosuna yazılıyor; Flutter Dashboard'da turuncu uyarı kartı, Next.js Web Paneli'nde kırmızı rozet + detaylı anomali listesi olarak görüntüleniyor. ✅
+
 ---
 
 ## 📁 Proje Yapısı
@@ -29,7 +31,7 @@ akilli-ekosistem-platformu/
 │   │       ├── auth/            # Giriş / Kayıt (data + domain + presentation)
 │   │       ├── dashboard/       # Ana panel (fl_chart BarChart entegre ✅)
 │   │       ├── consumption/     # Tüketim CRUD — form, repository, Riverpod ✅
-│   │       └── anomaly/         # Anomali listesi ve detayı
+│   │       └── anomaly/         # Kural tabanlı anomali tespiti, repository, Riverpod provider ✅
 │   ├── pubspec.yaml             # Flutter bağımlılıkları
 │   └── .env.example             # Ortam değişkeni şablonu
 │
@@ -55,7 +57,8 @@ akilli-ekosistem-platformu/
 | Hafta 1–2 | Proje kurulumu, Next.js + Flutter iskelet, Supabase şeması, dokümantasyon | ✅ Tamamlandı |
 | Hafta 3 | Auth entegrasyonu (Supabase JWT), GoRouter, login/register akışı | ✅ Tamamlandı |
 | Hafta 4 | Tüketim verisi CRUD (Flutter Riverpod + Supabase), `fl_chart` BarChart (mobil), Recharts AreaChart (web), Server-side dashboard veri çekme | ✅ Tamamlandı |
-| Hafta 5–13 | Anomali tespiti, Gemini AI entegrasyonu, bildirimler, deployment | 🔲 Planlandı |
+| Hafta 5 | **Kural tabanlı anomali tespit algoritması** — Flutter `AnomalyRepository` + `anomaly_provider`, Supabase `anomalies` tablosu, turuncu uyarı kartları (mobil) ve `AnomalyList` bileşeni (Next.js web paneli) | ✅ Tamamlandı |
+| Hafta 6–13 | Gemini AI entegrasyonu, bildirimler, raporlama, deployment | 🔲 Planlandı |
 
 ---
 
@@ -70,6 +73,7 @@ akilli-ekosistem-platformu/
 | Backend/Auth | Supabase (PostgreSQL + JWT) | BaaS — Auth, Realtime, Storage |
 | Yapay Zeka | Google Gemini API (gemini-1.5-flash) | Anomali açıklama, öneri üretme |
 | Grafik | fl_chart (mobil) / Recharts (web) | Tüketim trend grafikleri ✅ Hafta 4'te entegre edildi |
+| Anomali Motoru | Kural tabanlı eşik algoritması (Dart + TypeScript) | Elektrik/Su/Gaz aşım tespiti ✅ Hafta 5'te entegre edildi |
 | Dağıtım | Vercel (web) / Firebase (mobil test) | CI/CD entegrasyon |
 
 ---

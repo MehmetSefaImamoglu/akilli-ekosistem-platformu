@@ -5,7 +5,12 @@ import {
   fetchConsumptionTotals,
   fetchDailyConsumptions,
 } from '@/lib/supabase/consumption_queries'
+import {
+  fetchRecentAnomalies,
+  fetchOpenAnomalyCount,
+} from '@/lib/supabase/anomaly_queries'
 import ConsumptionAreaChart from '@/components/ConsumptionAreaChart'
+import AnomalyList from '@/components/AnomalyList'
 
 // ─── Yardımcı: sayıyı güzel formatla ─────────────────────────────────────────
 function fmt(v: number): string {
@@ -28,10 +33,14 @@ export default async function DashboardPage() {
     (user.user_metadata?.full_name as string) ?? user.email ?? 'Yonetici'
 
   // ── Server-side veri çekme ─────────────────────────────────────────────────
-  const [totals, dailyData] = await Promise.all([
+  const [totals, dailyData, recentAnomalies, openAnomalyCount] = await Promise.all([
     fetchConsumptionTotals(supabase, user.id, 30),
     fetchDailyConsumptions(supabase, user.id, 7),
+    fetchRecentAnomalies(supabase, user.id, 10),
+    fetchOpenAnomalyCount(supabase, user.id),
   ])
+
+  const hasOpenAnomalies = openAnomalyCount > 0
 
   const summaryCards = [
     {
@@ -89,6 +98,19 @@ export default async function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Açık anomali uyarı rozeti */}
+            {hasOpenAnomalies && (
+              <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 rounded-full px-3 py-1">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                </span>
+                <span className="text-red-300 text-xs font-semibold">
+                  {openAnomalyCount} açık anomali
+                </span>
+              </div>
+            )}
+
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-xs font-bold text-emerald-400">
                 {displayName.charAt(0).toUpperCase()}
@@ -164,6 +186,35 @@ export default async function DashboardPage() {
         {/* Recharts Alan Grafigi */}
         <section>
           <ConsumptionAreaChart data={dailyData} />
+        </section>
+
+        {/* ─── Son Anomaliler ─────────────────────────────────────────── */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                Son Anomaliler
+              </h2>
+              {hasOpenAnomalies && (
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+                  {openAnomalyCount} açık
+                </span>
+              )}
+            </div>
+            <span className="text-xs text-slate-600">Son 10 kayıt</span>
+          </div>
+
+          {/* Anomali bulunan durum: kırmızı uyarı banner */}
+          {hasOpenAnomalies && (
+            <div className="flex items-center gap-3 bg-red-500/8 border border-red-500/25 rounded-xl px-4 py-3 mb-4">
+              <span className="text-red-400 text-base select-none">🚨</span>
+              <p className="text-red-300 text-sm">
+                <strong>{openAnomalyCount} adet açık anomali</strong> mevcut — lütfen tüketim değerlerini inceleyin.
+              </p>
+            </div>
+          )}
+
+          <AnomalyList anomalies={recentAnomalies} />
         </section>
 
         {/* Alt bilgi */}
