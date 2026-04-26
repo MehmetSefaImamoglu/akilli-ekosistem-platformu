@@ -7,6 +7,8 @@ Enerji (elektrik, gaz) ve su tüketimini gerçek zamanlı izleyen, Google Gemini
 
 > 🚨 **Yeni — Hafta 5:** Kural tabanlı anomali tespit algoritması devreye alındı! Elektrik > 200 kWh, Su > 100 L veya Gaz > 50 m³ eşik değerlerini aşan her tüketim kaydı otomatik olarak `anomalies` tablosuna yazılıyor; Flutter Dashboard'da turuncu uyarı kartı, Next.js Web Paneli'nde kırmızı rozet + detaylı anomali listesi olarak görüntüleniyor. ✅
 
+> 🤖 **Yeni — Hafta 6: AI Destekli Anomali Analizi (Gemini 2.5 Flash):** Gemini AI anomali açıklama motoru tam kapasite devreye alındı! Flutter → Next.js API Route → Google Gemini 2.5 Flash zinciri çalışır; Türkçe doğal dil analizi `anomalies.gemini_explanation` sütununa yazılır ve Anomali Listesi sayfasında yeşil AI kartı olarak görüntülenir. **Çözülen teknik sorunlar:** Supabase `gemini_explanation` sütunu VARCHAR limitlerini aşmak için TEXT tipine geçildi; Gemini 2.5 Flash modelinin varsayılan “thinking” token bütçesi (`thinkingBudget: 0`) optimize edilerek yanıt kesilme sorunu kökten çözüldü; Flutter tarafında `ConstrainedBox` + `SingleChildScrollView` ile dinamik analiz arayüzü kusursuz hale getirildi. `GEMINI_API_KEY` hiçbir zaman Flutter’a gömülmez. ✅
+
 ---
 
 ## 📁 Proje Yapısı
@@ -58,7 +60,8 @@ akilli-ekosistem-platformu/
 | Hafta 3 | Auth entegrasyonu (Supabase JWT), GoRouter, login/register akışı | ✅ Tamamlandı |
 | Hafta 4 | Tüketim verisi CRUD (Flutter Riverpod + Supabase), `fl_chart` BarChart (mobil), Recharts AreaChart (web), Server-side dashboard veri çekme | ✅ Tamamlandı |
 | Hafta 5 | **Kural tabanlı anomali tespit algoritması** — Flutter `AnomalyRepository` + `anomaly_provider`, Supabase `anomalies` tablosu, turuncu uyarı kartları (mobil) ve `AnomalyList` bileşeni (Next.js web paneli) | ✅ Tamamlandı |
-| Hafta 6–13 | Gemini AI entegrasyonu, bildirimler, raporlama, deployment | 🔲 Planlandı |
+| Hafta 6 | **Gemini AI Anomali Açıklama Motoru** — `GeminiService` (Flutter→Next.js proxy), `AnomalyRepository.updateGeminiExplanation()`, `GeminiAnalysisNotifier` (Riverpod), tam işlevsel `AnomalyListPage` + reaktif bottom sheet, paylaşımlı `AnomalyCard` widget (DRY) | ✅ Tamamlandı |
+| Hafta 7–13 | Yerel bildirimler, raporlama, deployment | 🔲 Planlandı |
 
 ---
 
@@ -71,7 +74,7 @@ akilli-ekosistem-platformu/
 | State Yönetimi | Riverpod 2 | Compile-time güvenli reaktif state |
 | Navigasyon | GoRouter | Bildirimsel routing, deep link |
 | Backend/Auth | Supabase (PostgreSQL + JWT) | BaaS — Auth, Realtime, Storage |
-| Yapay Zeka | Google Gemini API (gemini-1.5-flash) | Anomali açıklama, öneri üretme |
+| Yapay Zeka | Google Gemini API (gemini-2.5-flash) | Anomali açıklama, öneri üretme |
 | Grafik | fl_chart (mobil) / Recharts (web) | Tüketim trend grafikleri ✅ Hafta 4'te entegre edildi |
 | Anomali Motoru | Kural tabanlı eşik algoritması (Dart + TypeScript) | Elektrik/Su/Gaz aşım tespiti ✅ Hafta 5'te entegre edildi |
 | Dağıtım | Vercel (web) / Firebase (mobil test) | CI/CD entegrasyon |

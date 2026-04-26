@@ -1,4 +1,5 @@
 // lib/features/dashboard/presentation/pages/dashboard_page.dart
+// Hafta 6: anomalyListProvider(5) (family) + paylaşımlı AnomalyCard widget
 //
 // Hafta 4: Gercek veri entegrasyonu
 //   - consumptionTotalsProvider ile ozet kartlar
@@ -12,10 +13,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../anomaly/providers/anomaly_provider.dart';
+import '../../../anomaly/presentation/widgets/anomaly_card.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../consumption/presentation/widgets/consumption_bar_chart.dart';
 import '../../../consumption/providers/consumption_provider.dart';
-import '../../../../models/anomaly_model.dart';
 import '../../../../models/consumption_model.dart';
 
 class DashboardPage extends ConsumerWidget {
@@ -30,8 +31,8 @@ class DashboardPage extends ConsumerWidget {
 
     // 30 gunluk toplam tuketimler (elektrik, su, gaz)
     final totalsAsync = ref.watch(consumptionTotalsProvider);
-    // Son 5 anomali
-    final anomalyAsync = ref.watch(anomalyListProvider);
+    // Son 5 anomali (family provider — limit=5)
+    final anomalyAsync = ref.watch(anomalyListProvider(5));
 
     return Scaffold(
       appBar: AppBar(
@@ -81,6 +82,7 @@ class DashboardPage extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(consumptionListProvider);
           ref.invalidate(consumptionTotalsProvider);
+          // family provider: tüm instance'ları (5, 50, ...) invalidate eder
           ref.invalidate(anomalyListProvider);
         },
         child: CustomScrollView(
@@ -204,7 +206,7 @@ class DashboardPage extends ConsumerWidget {
                         2,
                         (_) => const Padding(
                           padding: EdgeInsets.only(bottom: 8),
-                          child: _AnomalyCardSkeleton(),
+                          child: AnomalyCardSkeleton(),
                         ),
                       ),
                     ),
@@ -252,7 +254,7 @@ class DashboardPage extends ConsumerWidget {
                                 .map((a) => Padding(
                                       padding:
                                           const EdgeInsets.only(bottom: 8),
-                                      child: _AnomalyCard(anomaly: a),
+                                      child: AnomalyCard(anomaly: a),
                                     ))
                                 .toList(),
                           ),
@@ -360,193 +362,6 @@ class _SkeletonCard extends StatelessWidget {
   }
 }
 
-// ──────────────────────────────────────────────────────────────
-// Anomali Uyarı Kartı
-// severity: high → kırmızı, medium → turuncu, low → sarı
-// ──────────────────────────────────────────────────────────────
-class _AnomalyCard extends StatelessWidget {
-  final AnomalyModel anomaly;
-  const _AnomalyCard({required this.anomaly});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    // Şiddete göre renk paleti
-    final (cardColor, iconColor, borderColor) = switch (anomaly.severity) {
-      AnomalySeverity.critical => (
-          const Color(0xFFFFEBEE),
-          const Color(0xFFC62828),
-          const Color(0xFFEF9A9A),
-        ),
-      AnomalySeverity.high => (
-          const Color(0xFFFFF3E0),
-          const Color(0xFFE65100),
-          const Color(0xFFFFCC80),
-        ),
-      AnomalySeverity.medium => (
-          const Color(0xFFFFFDE7),
-          const Color(0xFFF9A825),
-          const Color(0xFFFFF176),
-        ),
-      AnomalySeverity.low => (
-          const Color(0xFFF1F8E9),
-          const Color(0xFF558B2F),
-          const Color(0xFFAED581),
-        ),
-    };
-
-    // Tarih formatlama (GG.AA SS:DD)
-    final dt = anomaly.detectedAt.toLocal();
-    final dateStr =
-        '${dt.day.toString().padLeft(2, '0')}.'
-        '${dt.month.toString().padLeft(2, '0')} '
-        '${dt.hour.toString().padLeft(2, '0')}:'
-        '${dt.minute.toString().padLeft(2, '0')}';
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: 1.2),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // İkon
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(Icons.warning_amber_rounded,
-                  color: iconColor, size: 22),
-            ),
-            const SizedBox(width: 12),
-            // Açıklama + tarih
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    anomaly.description,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: iconColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.access_time_rounded,
-                          size: 13,
-                          color: iconColor.withValues(alpha: 0.7)),
-                      const SizedBox(width: 4),
-                      Text(
-                        dateStr,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: iconColor.withValues(alpha: 0.8),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      _SeverityBadge(severity: anomaly.severity),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Şiddet rozeti
-class _SeverityBadge extends StatelessWidget {
-  final AnomalySeverity severity;
-  const _SeverityBadge({required this.severity});
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, color) = switch (severity) {
-      AnomalySeverity.critical => ('KRİTİK', const Color(0xFFC62828)),
-      AnomalySeverity.high     => ('YÜKSEK', const Color(0xFFE65100)),
-      AnomalySeverity.medium   => ('ORTA',   const Color(0xFFF9A825)),
-      AnomalySeverity.low      => ('DÜŞÜK',  const Color(0xFF558B2F)),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: color,
-          letterSpacing: 0.4,
-        ),
-      ),
-    );
-  }
-}
-
-// Anomali yükleniyor iskeleti
-class _AnomalyCardSkeleton extends StatelessWidget {
-  const _AnomalyCardSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = Theme.of(context).colorScheme.surfaceContainerHighest;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: c),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 38, height: 38,
-            decoration: BoxDecoration(
-              color: c,
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 12, width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: c,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 10, width: 120,
-                  decoration: BoxDecoration(
-                    color: c,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// _AnomalyCard, _SeverityBadge ve _AnomalyCardSkeleton
+// → lib/features/anomaly/presentation/widgets/anomaly_card.dart dosyasına taşındı.
+// DRY: Dashboard ve AnomalyListPage aynı widget'ı kullanır.

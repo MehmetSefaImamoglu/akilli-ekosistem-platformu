@@ -14,15 +14,18 @@ export type AnomalySeverity = 'low' | 'medium' | 'high' | 'critical'
 export type AnomalyStatus   = 'open' | 'acknowledged' | 'resolved'
 
 export interface AnomalyRow {
-  id:             string
-  user_id:        string
-  consumption_id: string | null
-  description:    string
-  severity:       AnomalySeverity
-  status:         AnomalyStatus
-  detected_value: number
-  expected_value: number
-  detected_at:    string   // ISO 8601
+  id:                  string
+  user_id:             string
+  consumption_id:      string | null
+  description:         string
+  severity:            AnomalySeverity
+  status:              AnomalyStatus
+  detected_value:      number
+  expected_value:      number
+  detected_at:         string          // ISO 8601
+  // Hafta 6: Gemini AI alanları
+  gemini_explanation:  string | null   // AI tarafından üretilen Türkçe açıklama
+  gemini_analyzed_at:  string | null   // Analiz zaman damgası (ISO 8601)
 }
 
 // ─── 1. Son N Anomaliyi Getir ────────────────────────────────────────────────

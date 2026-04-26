@@ -89,7 +89,7 @@ Bu belge, EcoSync AI projesinde kullanılan tüm teknolojileri, seçilme gerekç
 
 | Teknoloji | Rol | Seçilme Gerekçesi |
 |-----------|-----|-------------------|
-| **Google Gemini API** (gemini-1.5-flash) | Anomali açıklama + Öneri üretme | Multimodal; hızlı; Türkçe dil desteği; ücretsiz tier |
+| **Google Gemini API** (gemini-pro) | Anomali açıklama + Öneri üretme | Multimodal; hızlı; Türkçe dil desteği; ücretsiz tier |
 | **Statistical Threshold Engine** | Anomali tespiti | Hafif, açıklanabilir, sezgisel eşik tabanlı tespit |
 
 ### Anomali Tespit Yaklaşımı
