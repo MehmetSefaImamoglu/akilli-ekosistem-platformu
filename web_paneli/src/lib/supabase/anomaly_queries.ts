@@ -93,3 +93,77 @@ export function formatDetectedAt(iso: string): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
+
+// ─── 3. Hafta 7: Anomali Trend Noktaları (LineChart) ─────────────────────────
+//     Son N anomalinin detected/expected değerlerini çizer.
+
+export interface AnomalyTrendRow {
+  date:           string
+  detected_value: number
+  expected_value: number
+  severity:       AnomalySeverity
+}
+
+export async function fetchAnomalyTrendPoints(
+  supabase: SupabaseClient,
+  userId:   string,
+  limit     = 30,
+): Promise<AnomalyTrendRow[]> {
+  const { data, error } = await supabase
+    .from('anomalies')
+    .select('detected_at, detected_value, expected_value, severity')
+    .eq('user_id', userId)
+    .order('detected_at', { ascending: false })
+    .limit(limit)
+
+  if (error || !data) {
+    console.error('[fetchAnomalyTrendPoints]', error)
+    return []
+  }
+
+  // Kronolojik sıraya al ve tarihi "gg.AA" formatına çevir
+  return (data as { detected_at: string; detected_value: number; expected_value: number; severity: AnomalySeverity }[])
+    .reverse()
+    .map((row) => {
+      const d = new Date(row.detected_at)
+      const pad = (n: number) => String(n).padStart(2, '0')
+      return {
+        date:           `${pad(d.getDate())}.${pad(d.getMonth() + 1)}`,
+        detected_value: row.detected_value,
+        expected_value: row.expected_value,
+        severity:       row.severity,
+      }
+    })
+}
+
+// ─── 4. Hafta 7: Anomali Durum Sayıları (PieChart) ────────────────────────────
+
+export interface AnomalyStatusCounts {
+  open:         number
+  acknowledged: number
+  resolved:     number
+  total:        number
+}
+
+export async function fetchAnomalyStatusCounts(
+  supabase: SupabaseClient,
+  userId:   string,
+): Promise<AnomalyStatusCounts> {
+  const { data, error } = await supabase
+    .from('anomalies')
+    .select('status')
+    .eq('user_id', userId)
+
+  if (error || !data) {
+    console.error('[fetchAnomalyStatusCounts]', error)
+    return { open: 0, acknowledged: 0, resolved: 0, total: 0 }
+  }
+
+  const counts = { open: 0, acknowledged: 0, resolved: 0, total: data.length }
+  for (const row of data as { status: AnomalyStatus }[]) {
+    if (row.status in counts) {
+      counts[row.status as keyof Omit<AnomalyStatusCounts, 'total'>]++
+    }
+  }
+  return counts
+}

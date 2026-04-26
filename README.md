@@ -9,6 +9,8 @@ Enerji (elektrik, gaz) ve su tüketimini gerçek zamanlı izleyen, Google Gemini
 
 > 🤖 **Yeni — Hafta 6: AI Destekli Anomali Analizi (Gemini 2.5 Flash):** Gemini AI anomali açıklama motoru tam kapasite devreye alındı! Flutter → Next.js API Route → Google Gemini 2.5 Flash zinciri çalışır; Türkçe doğal dil analizi `anomalies.gemini_explanation` sütununa yazılır ve Anomali Listesi sayfasında yeşil AI kartı olarak görüntülenir. **Çözülen teknik sorunlar:** Supabase `gemini_explanation` sütunu VARCHAR limitlerini aşmak için TEXT tipine geçildi; Gemini 2.5 Flash modelinin varsayılan “thinking” token bütçesi (`thinkingBudget: 0`) optimize edilerek yanıt kesilme sorunu kökten çözüldü; Flutter tarafında `ConstrainedBox` + `SingleChildScrollView` ile dinamik analiz arayüzü kusursuz hale getirildi. `GEMINI_API_KEY` hiçbir zaman Flutter’a gömülmez. ✅
 
+> 📊 **Yeni — Hafta 7: Web Panelinde Verilerin Görselleştirilmesi (Command Center):** Next.js App Router üzerinde Recharts kütüphanesi kullanılarak gelişmiş bir Dashboard inşa edildi. Yöneticiler için sistemin genel durumunu gösteren **KPI kartı** (Toplam/Açık/Çözülme Oranı/AI Analizi), tespit edilen vs beklenen değerleri yan yana çizen **dinamik `AnomalyTrendChart` (LineChart)** ve anomali durum dağılımını gösteren **interaktif `AnomalyStatusPie` (DonutChart)** eklendi. Tüm veriler Server Component üzerinden Supabase'den paralel olarak çekilmektedir. ✅
+
 ---
 
 ## 📁 Proje Yapısı
@@ -60,8 +62,9 @@ akilli-ekosistem-platformu/
 | Hafta 3 | Auth entegrasyonu (Supabase JWT), GoRouter, login/register akışı | ✅ Tamamlandı |
 | Hafta 4 | Tüketim verisi CRUD (Flutter Riverpod + Supabase), `fl_chart` BarChart (mobil), Recharts AreaChart (web), Server-side dashboard veri çekme | ✅ Tamamlandı |
 | Hafta 5 | **Kural tabanlı anomali tespit algoritması** — Flutter `AnomalyRepository` + `anomaly_provider`, Supabase `anomalies` tablosu, turuncu uyarı kartları (mobil) ve `AnomalyList` bileşeni (Next.js web paneli) | ✅ Tamamlandı |
-| Hafta 6 | **Gemini AI Anomali Açıklama Motoru** — `GeminiService` (Flutter→Next.js proxy), `AnomalyRepository.updateGeminiExplanation()`, `GeminiAnalysisNotifier` (Riverpod), tam işlevsel `AnomalyListPage` + reaktif bottom sheet, paylaşımlı `AnomalyCard` widget (DRY) | ✅ Tamamlandı |
-| Hafta 7–13 | Yerel bildirimler, raporlama, deployment | 🔲 Planlandı |
+| Hafta 6 | **Gemini AI Anomali Açıklama Motoru** — `GeminiService` (Flutter→Next.js proxy), `AnomalyRepository.updateGeminiExplanation()`, `GeminiAnalysisNotifier` (Riverpod), tam işlevsel `AnomalyListPage` + reaktif bottom sheet, `thinkingBudget:0` fix, Supabase TEXT migration | ✅ Tamamlandı |
+| Hafta 7 | **Web Panelinde Veri Görselleştirmesi (Command Center)** — Recharts `AnomalyTrendChart` (LineChart: detected vs expected), `AnomalyStatusPie` (DonutChart: open/acknowledged/resolved), 4 adet KPI kartı, Server Component paralel veri çekme, tam responsive grid layout | ✅ Tamamlandı |
+| Hafta 8–13 | Yerel bildirimler, raporlama, deployment | 🔲 Planlandı |
 
 ---
 
