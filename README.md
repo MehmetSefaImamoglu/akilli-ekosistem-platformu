@@ -13,6 +13,8 @@ Enerji (elektrik, gaz) ve su tüketimini gerçek zamanlı izleyen, Google Gemini
 
 > 🛡️ **Yeni — Hafta 8: Siber-Fiziksel Güvenlik ve AI Triaj Sistemi:** Gemini AI analiz promptu, sıradan tüketim uyarılarının ötesine geçerek bir siber güvenlik analisti gibi çalışacak şekilde güncellendi. Sistem artık V2G manipülasyonlarını, IoT sensör (Data Injection) saldırılarını ve EV şarj altyapısı açıklarını analiz edebiliyor. Analiz sonuçlarına **[OLAĞAN HATA]**, **[SİSTEM ZAFİYETİ ŞÜPHESİ]** ve **[KRİTİK GÜVENLİK ALARMI]** olmak üzere otomatik triaj etiketleme özelliği eklendi. ✅
 
+> 📡 **Yeni — Hafta 9: Gerçek Zamanlı (Realtime) Siber Uyarı Sistemi:** Supabase Realtime (WebSockets) ve Sonner kütüphanesi entegre edildi. Sistem artık IoT sensörlerinden veya mobil uygulamadan gelen anomali verilerini dinliyor ve Command Center (Web Dashboard) üzerinde sayfa yenilemeye gerek kalmadan anında, animasyonlu 'Toast' bildirimleri (🚨 YENİ ANOMALİ TESPİTİ) olarak gösteriyor. ✅
+
 ---
 
 ## 📁 Proje Yapısı
@@ -67,7 +69,8 @@ akilli-ekosistem-platformu/
 | Hafta 6 | **Gemini AI Anomali Açıklama Motoru** — `GeminiService` (Flutter→Next.js proxy), `AnomalyRepository.updateGeminiExplanation()`, `GeminiAnalysisNotifier` (Riverpod), tam işlevsel `AnomalyListPage` + reaktif bottom sheet, `thinkingBudget:0` fix, Supabase TEXT migration | ✅ Tamamlandı |
 | Hafta 7 | **Web Panelinde Veri Görselleştirmesi (Command Center)** — Recharts `AnomalyTrendChart` (LineChart: detected vs expected), `AnomalyStatusPie` (DonutChart: open/acknowledged/resolved), 4 adet KPI kartı, Server Component paralel veri çekme, tam responsive grid layout | ✅ Tamamlandı |
 | Hafta 8 | **Siber-Fiziksel Güvenlik ve AI Triaj Sistemi** — Gemini promptu CPS güvenlik analistine dönüştürüldü; V2G manipülasyonu, IoT Data Injection ve EV şarj açığı senaryoları eklendi; `[OLAĞAN HATA]` / `[SİSTEM ZAFİYETİ ŞÜPHESİ]` / `[KRİTİK GÜVENLİK ALARMI]` otomatik triaj etiketleme sistemi devreye alındı | ✅ Tamamlandı |
-| Hafta 9–13 | Yerel bildirimler, raporlama, deployment | 🔲 Planlandı |
+| Hafta 9 | **Gerçek Zamanlı (Realtime) Siber Uyarı Sistemi** — Supabase Realtime WebSocket kanalı (`postgres_changes` INSERT) kuruldu; `RealtimeAnomalyListener` Client Component oluşturuldu; Sonner `<Toaster theme="dark" position="top-right" richColors />` root layout'a eklendi; dashboard'a görünmez dinleyici bileşeni entegre edildi | ✅ Tamamlandı |
+| Hafta 10–13 | Yerel bildirimler, raporlama, deployment | 🔲 Planlandı |
 
 ---
 

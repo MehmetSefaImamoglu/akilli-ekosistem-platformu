@@ -17,10 +17,11 @@ import {
   fetchAnomalyStatusCounts,
 } from '@/lib/supabase/anomaly_queries'
 
-import ConsumptionAreaChart from '@/components/ConsumptionAreaChart'
-import AnomalyList          from '@/components/AnomalyList'
-import AnomalyTrendChart    from '@/components/dashboard/AnomalyTrendChart'
-import AnomalyStatusPie     from '@/components/dashboard/AnomalyStatusPie'
+import ConsumptionAreaChart        from '@/components/ConsumptionAreaChart'
+import AnomalyList                 from '@/components/AnomalyList'
+import AnomalyTrendChart           from '@/components/dashboard/AnomalyTrendChart'
+import AnomalyStatusPie            from '@/components/dashboard/AnomalyStatusPie'
+import RealtimeAnomalyListener     from '@/components/dashboard/RealtimeAnomalyListener'
 
 // ─── Yardımcı ─────────────────────────────────────────────────────────────────
 function fmt(v: number): string {
@@ -316,6 +317,15 @@ export default async function DashboardPage() {
             </p>
           </div>
         </div>
+
+        {/* ── Hafta 9: Realtime Listener — görünmez, sadece WebSocket dinler ── */}
+        {/*
+         * Server Component bu Client bileşeni render eder.
+         * RealtimeAnomalyListener hiçbir DOM elementi üretmez (return null);
+         * sadece Supabase Realtime kanalına abone olur ve yeni anomali
+         * eklendiğinde sonner toast.error() ile bildirim gösterir.
+         */}
+        <RealtimeAnomalyListener userId={user.id} />
 
       </main>
     </div>
