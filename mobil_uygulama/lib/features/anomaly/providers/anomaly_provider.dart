@@ -1,6 +1,7 @@
 // lib/features/anomaly/providers/anomaly_provider.dart
 //
 // Hafta 6 — Provider mimarisi
+// Hafta 10 — 503 / AI yoğunluk hatası graceful handling eklendi
 //
 // Hafta 6 UI-anlık-güncelleme çözümü:
 //   GeminiAnalysisState.lastExplanation ve lastAnalyzedId alanları,
@@ -147,7 +148,25 @@ class GeminiAnalysisNotifier
       ref.invalidate(anomalyListProvider);
 
     } on Exception catch (e) {
-      state = GeminiAnalysisState(error: 'Analiz hatası: $e');
+      final msg = e.toString().toLowerCase();
+
+      // ── 503 / sunucu yoğunluk tespiti ────────────────────────────────────
+      // Next.js proxy veya Gemini API'den 503, "overloaded", "unavailable",
+      // "service unavailable" gibi ifadeler geldiğinde özel sentinel kullan.
+      // UI katmanı (anomaly_list_page) bu sentinel'ı okuyarak
+      // SnackbarHelper.showAiBusy() ile zarif bir bildirim gösterir.
+      final isBusy = msg.contains('503') ||
+          msg.contains('overload') ||
+          msg.contains('unavailable') ||
+          msg.contains('service') ||
+          msg.contains('yoğun');
+
+      if (isBusy) {
+        // Sentinel: AI_BUSY  — UI bu değeri okuyarak showAiBusy() çağırır
+        state = const GeminiAnalysisState(error: 'AI_BUSY');
+      } else {
+        state = GeminiAnalysisState(error: 'Analiz hatası: $e');
+      }
     }
   }
 

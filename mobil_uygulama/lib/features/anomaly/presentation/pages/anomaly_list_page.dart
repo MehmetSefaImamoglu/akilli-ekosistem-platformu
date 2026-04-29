@@ -16,9 +16,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../models/anomaly_model.dart';
 import '../../providers/anomaly_provider.dart';
 import '../widgets/anomaly_card.dart';
+import '../widgets/anomaly_shimmer_card.dart';
 
 // ══════════════════════════════════════════════════════════════
 // AnomalyListPage
@@ -32,23 +34,34 @@ class AnomalyListPage extends ConsumerWidget {
     final geminiState  = ref.watch(geminiAnalysisProvider);
 
     // Hata → SnackBar, asla kırmızı çökme ekranı
+    // Hafta 10: AI_BUSY sentinel → showAiBusy(), diğer hatalar → showError()
     ref.listen<GeminiAnalysisState>(geminiAnalysisProvider, (_, next) {
       if (next.error != null && !next.isLoading) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(next.error!),
-              backgroundColor: Theme.of(context).colorScheme.error,
-              behavior: SnackBarBehavior.floating,
-              action: SnackBarAction(
-                label: 'Tamam',
-                textColor: Colors.white,
-                onPressed: () =>
-                    ref.read(geminiAnalysisProvider.notifier).clearError(),
-              ),
-            ),
+        if (next.error == 'AI_BUSY') {
+          // 503 / Gemini sunucu yoğunluğu — zarfıf mor bildirim
+          SnackbarHelper.showAiBusy(
+            context,
+            onRetry: () {
+              // Analiz edilmemiş ilk anomaliyi tekrar tetikle
+              final anomalies = ref.read(anomalyListProvider(50)).value;
+              final first     = anomalies
+                  ?.where((a) => a.geminiExplanation == null)
+                  .firstOrNull;
+              if (first != null) {
+                ref.read(geminiAnalysisProvider.notifier).analyze(first);
+              }
+            },
           );
+        } else {
+          // Genel hata — kırmızı bildirim
+          SnackbarHelper.showError(
+            context,
+            next.error!,
+            actionLabel: 'Tamam',
+            onAction:    () =>
+                ref.read(geminiAnalysisProvider.notifier).clearError(),
+          );
+        }
         ref.read(geminiAnalysisProvider.notifier).clearError();
       }
     });
@@ -129,30 +142,11 @@ class AnomalyListPage extends ConsumerWidget {
               onTap: () => _showDetailSheet(context, ref, anomaly.id),
             ),
             if (isBeingAnalyzed)
+              // Hafta 10: CircularProgressIndicator yerine GeminiShimmerBlock
               Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.82),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        'Gemini analiz ediyor...',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: const GeminiShimmerBlock(),
                 ),
               ),
           ],
@@ -161,13 +155,13 @@ class AnomalyListPage extends ConsumerWidget {
     );
   }
 
-  // ── Skeleton ───────────────────────────────────────────────
+  // ── Skeleton — Hafta 10: AnomalyShimmerCard kullanılıyor ──────────────────
   Widget _buildSkeleton() {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: 4,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (_, __) => const AnomalyCardSkeleton(),
+      itemBuilder: (_, __) => const AnomalyShimmerCard(),
     );
   }
 
