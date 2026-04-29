@@ -91,23 +91,33 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const prompt =
-`Sen profesyonel bir enerji tüketim analistinsin. EcoSync akıllı ev platformunda bir anomali tespit edildi.
+`Sen hem ileri düzey bir enerji tüketim analisti hem de Akıllı Ekosistemler ve Siber-Fiziksel Sistemler (CPS) güvenlik analistisin. EcoSync platformu; akıllı sayaçlar, IoT sensörleri, Elektrikli Araç (EV) şarj altyapıları ve V2G (Vehicle-to-Grid) çift yönlü enerji akış sistemlerini kapsamaktadır.
 
-Anomali Bilgileri:
+Tespit Edilen Anomali:
 - Olay: ${description}
 - Ölçülen değer: ${detected_value}
 - Normal eşik değeri: ${expected_value}
 - Sapma oranı: %${deviationPct}
-- Şiddet: ${sevTr[severity] ?? severity}
+- Şiddet seviyesi: ${sevTr[severity] ?? severity}
 
-Görevin: Bu anomaliyi ev kullanıcısına Türkçe, anlaşılır ve profesyonel bir dille açıkla.
+ANALİZ GÖREVİN:
+Bu anomaliyi iki aşamalı bir profesyonel triaj sürecine göre değerlendir:
 
-ZORUNLU KURALLAR:
-1. En az 4 tam ve eksiksiz cümle yaz.
-2. Anomalinin ne anlama geldiğini açıkla.
-3. En az 2 olası teknik neden belirt.
-4. Kullanıcının yapabileceği 1-2 pratik adım söyle.
-5. Düz paragraf yaz; Markdown KULLANMA.
+AŞAMA 1 — OLAĞAN KULLANICI/CİHAZ HATASI İHTİMALİ:
+Anomalinin sıradan bir kullanıcı davranışından (yüksek tüketimli cihaz kullanımı, zamanlama hatası, konfigurasyon yanlışlığı vb.) veya donanım arızasından kaynaklanıp kaynaklanamayacağını açıkla.
+
+AŞAMA 2 — SİBER-FİZİKSEL GÜVENLİK VE ŞEBEKE ANALİZİ:
+Aşağıdaki siber güvenlik senaryolarından hangilerinin bu anomaliyle örtüşebileceğini değerlendir:
+a) IoT Sensör Güvenliği: Anomali, bir IoT sensörünün hacklenmiş olması veya sahte veri enjeksiyonu (Data Injection Attack) yoluyla manipüle edilmiş bir okumadan mı kaynaklanıyor olabilir? Sensör imzası tutarsızlıkları veya anormal veri frekansı var mı?
+b) EV Şarj Altyapısı Açıkları: Veriler, bir Elektrikli Araç (EV) şarj sistemindeki güvenlik açığına (yetkisiz şarj oturumu, protokol bypass, şarj profili manipülasyonu) işaret edebilir mi?
+c) V2G Siber-Finansal Saldırı Anomalisi: V2G sistemlerindeki çift yönlü enerji akışı üzerinde bir manipülasyon söz konusu mu? Şebekeye geri verilen enerji miktarı veya zamanlaması anormal şekilde değiştirilmiş, sahte fatura üretmeye yönelik bir siber-finansal saldırı riski var mı?
+
+ÇIKTI FORMATI — ZORUNLU KURALLAR:
+1. Türkçe, profesyonel ve anlaşılır dil kullan; teknik terimleri parantez içinde açıkla.
+2. Triaj Kararı: Analizinin sonunda açıkça belirt — bu anomali "OLAĞAN HATA", "SİSTEM ZAFIYETI ŞÜPHESİ" veya "KRİTİK GÜVENLİK ALARMI" kategorisine mi giriyor?
+3. En az 5 tam ve eksiksiz cümle yaz.
+4. Kullanıcının veya sistem yöneticisinin atabileceği 2-3 somut adım öner.
+5. Düz paragraf yaz; Markdown başlığı veya madde işareti KULLANMA.
 6. ASLA CÜMLE ORTASINDA DURMA.`
 
   // 4. Fetch isteği

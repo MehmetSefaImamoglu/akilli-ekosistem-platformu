@@ -11,6 +11,8 @@ Enerji (elektrik, gaz) ve su tüketimini gerçek zamanlı izleyen, Google Gemini
 
 > 📊 **Yeni — Hafta 7: Web Panelinde Verilerin Görselleştirilmesi (Command Center):** Next.js App Router üzerinde Recharts kütüphanesi kullanılarak gelişmiş bir Dashboard inşa edildi. Yöneticiler için sistemin genel durumunu gösteren **KPI kartı** (Toplam/Açık/Çözülme Oranı/AI Analizi), tespit edilen vs beklenen değerleri yan yana çizen **dinamik `AnomalyTrendChart` (LineChart)** ve anomali durum dağılımını gösteren **interaktif `AnomalyStatusPie` (DonutChart)** eklendi. Tüm veriler Server Component üzerinden Supabase'den paralel olarak çekilmektedir. ✅
 
+> 🛡️ **Yeni — Hafta 8: Siber-Fiziksel Güvenlik ve AI Triaj Sistemi:** Gemini AI analiz promptu, sıradan tüketim uyarılarının ötesine geçerek bir siber güvenlik analisti gibi çalışacak şekilde güncellendi. Sistem artık V2G manipülasyonlarını, IoT sensör (Data Injection) saldırılarını ve EV şarj altyapısı açıklarını analiz edebiliyor. Analiz sonuçlarına **[OLAĞAN HATA]**, **[SİSTEM ZAFİYETİ ŞÜPHESİ]** ve **[KRİTİK GÜVENLİK ALARMI]** olmak üzere otomatik triaj etiketleme özelliği eklendi. ✅
+
 ---
 
 ## 📁 Proje Yapısı
@@ -64,7 +66,8 @@ akilli-ekosistem-platformu/
 | Hafta 5 | **Kural tabanlı anomali tespit algoritması** — Flutter `AnomalyRepository` + `anomaly_provider`, Supabase `anomalies` tablosu, turuncu uyarı kartları (mobil) ve `AnomalyList` bileşeni (Next.js web paneli) | ✅ Tamamlandı |
 | Hafta 6 | **Gemini AI Anomali Açıklama Motoru** — `GeminiService` (Flutter→Next.js proxy), `AnomalyRepository.updateGeminiExplanation()`, `GeminiAnalysisNotifier` (Riverpod), tam işlevsel `AnomalyListPage` + reaktif bottom sheet, `thinkingBudget:0` fix, Supabase TEXT migration | ✅ Tamamlandı |
 | Hafta 7 | **Web Panelinde Veri Görselleştirmesi (Command Center)** — Recharts `AnomalyTrendChart` (LineChart: detected vs expected), `AnomalyStatusPie` (DonutChart: open/acknowledged/resolved), 4 adet KPI kartı, Server Component paralel veri çekme, tam responsive grid layout | ✅ Tamamlandı |
-| Hafta 8–13 | Yerel bildirimler, raporlama, deployment | 🔲 Planlandı |
+| Hafta 8 | **Siber-Fiziksel Güvenlik ve AI Triaj Sistemi** — Gemini promptu CPS güvenlik analistine dönüştürüldü; V2G manipülasyonu, IoT Data Injection ve EV şarj açığı senaryoları eklendi; `[OLAĞAN HATA]` / `[SİSTEM ZAFİYETİ ŞÜPHESİ]` / `[KRİTİK GÜVENLİK ALARMI]` otomatik triaj etiketleme sistemi devreye alındı | ✅ Tamamlandı |
+| Hafta 9–13 | Yerel bildirimler, raporlama, deployment | 🔲 Planlandı |
 
 ---
 

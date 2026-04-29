@@ -11,21 +11,21 @@ import { SupabaseClient } from '@supabase/supabase-js'
 // ─── Tipler ─────────────────────────────────────────────────────────────────
 
 export type AnomalySeverity = 'low' | 'medium' | 'high' | 'critical'
-export type AnomalyStatus   = 'open' | 'acknowledged' | 'resolved'
+export type AnomalyStatus = 'open' | 'acknowledged' | 'resolved'
 
 export interface AnomalyRow {
-  id:                  string
-  user_id:             string
-  consumption_id:      string | null
-  description:         string
-  severity:            AnomalySeverity
-  status:              AnomalyStatus
-  detected_value:      number
-  expected_value:      number
-  detected_at:         string          // ISO 8601
+  id: string
+  user_id: string
+  consumption_id: string | null
+  description: string
+  severity: AnomalySeverity
+  status: AnomalyStatus
+  detected_value: number
+  expected_value: number
+  detected_at: string          // ISO 8601
   // Hafta 6: Gemini AI alanları
-  gemini_explanation:  string | null   // AI tarafından üretilen Türkçe açıklama
-  gemini_analyzed_at:  string | null   // Analiz zaman damgası (ISO 8601)
+  gemini_explanation: string | null   // AI tarafından üretilen Türkçe açıklama
+  gemini_analyzed_at: string | null   // Analiz zaman damgası (ISO 8601)
 }
 
 // ─── 1. Son N Anomaliyi Getir ────────────────────────────────────────────────
@@ -36,8 +36,8 @@ export interface AnomalyRow {
  */
 export async function fetchRecentAnomalies(
   supabase: SupabaseClient,
-  userId:   string,
-  limit     = 10,
+  userId: string,
+  limit = 10,
 ): Promise<AnomalyRow[]> {
   const { data, error } = await supabase
     .from('anomalies')
@@ -58,7 +58,7 @@ export async function fetchRecentAnomalies(
 
 export async function fetchOpenAnomalyCount(
   supabase: SupabaseClient,
-  userId:   string,
+  userId: string,
 ): Promise<number> {
   const { count, error } = await supabase
     .from('anomalies')
@@ -78,9 +78,9 @@ export async function fetchOpenAnomalyCount(
 
 export function severityLabel(s: AnomalySeverity): string {
   const map: Record<AnomalySeverity, string> = {
-    low:      'Düşük',
-    medium:   'Orta',
-    high:     'Yüksek',
+    low: 'Düşük',
+    medium: 'Orta',
+    high: 'Yüksek',
     critical: 'Kritik',
   }
   return map[s] ?? s
@@ -98,16 +98,16 @@ export function formatDetectedAt(iso: string): string {
 //     Son N anomalinin detected/expected değerlerini çizer.
 
 export interface AnomalyTrendRow {
-  date:           string
+  date: string
   detected_value: number
   expected_value: number
-  severity:       AnomalySeverity
+  severity: AnomalySeverity
 }
 
 export async function fetchAnomalyTrendPoints(
   supabase: SupabaseClient,
-  userId:   string,
-  limit     = 30,
+  userId: string,
+  limit = 30,
 ): Promise<AnomalyTrendRow[]> {
   const { data, error } = await supabase
     .from('anomalies')
@@ -128,10 +128,10 @@ export async function fetchAnomalyTrendPoints(
       const d = new Date(row.detected_at)
       const pad = (n: number) => String(n).padStart(2, '0')
       return {
-        date:           `${pad(d.getDate())}.${pad(d.getMonth() + 1)}`,
+        date: `${pad(d.getDate())}.${pad(d.getMonth() + 1)}`,
         detected_value: row.detected_value,
         expected_value: row.expected_value,
-        severity:       row.severity,
+        severity: row.severity,
       }
     })
 }
@@ -139,15 +139,15 @@ export async function fetchAnomalyTrendPoints(
 // ─── 4. Hafta 7: Anomali Durum Sayıları (PieChart) ────────────────────────────
 
 export interface AnomalyStatusCounts {
-  open:         number
+  open: number
   acknowledged: number
-  resolved:     number
-  total:        number
+  resolved: number
+  total: number
 }
 
 export async function fetchAnomalyStatusCounts(
   supabase: SupabaseClient,
-  userId:   string,
+  userId: string,
 ): Promise<AnomalyStatusCounts> {
   const { data, error } = await supabase
     .from('anomalies')
